@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { getCurrentUserApi } from "../api/auth";
 import { AuthContext } from "./auth-context";
@@ -23,6 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!token) return;
+    if(user) return
 
     let cancelled = false;
 
@@ -48,14 +49,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(user);
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
     setUser(null);
-  };
+  },[]);
 
   const value = useMemo(
     () => ({ user, isLoading, login, logout }),
-    [user, isLoading]
+    [user, isLoading,logout]
   );
 
   return (
