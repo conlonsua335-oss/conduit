@@ -15,14 +15,14 @@ export const getCurrentUserApi = () => {
 }
 
 export const loginApi = (email:string, password:string) => {
-    return apiRequest<UserResponse>("/user/login", {
+    return apiRequest<UserResponse>("/users/login", {
         method:"POST",
         body: JSON.stringify({user: {email,password}})
     })
 }
 
 export const registerApi = (email:string, password:string,name:string) => {
-    return apiRequest<UserResponse>("/user/register", {
+    return apiRequest<UserResponse>("/users", {
         method:"POST",
         body: JSON.stringify({user: {email,password,name}})
     })
