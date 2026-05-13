@@ -5,6 +5,14 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss(), 
+    tailwindcss(),
   ],
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://conduit-realworld-example-app.fly.dev",
+        changeOrigin: true,
+      },
+    },
+  },
 });
