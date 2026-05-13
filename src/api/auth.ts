@@ -11,7 +11,7 @@ export type User = {
 export type UserResponse = { user: User };
 
 export const getCurrentUserApi = () => {
-    return apiRequest<UserResponse>("/user")
+    return apiRequest<UserResponse>("/users")
 }
 
 export const loginApi = (email:string, password:string) => {
@@ -21,9 +21,9 @@ export const loginApi = (email:string, password:string) => {
     })
 }
 
-export const registerApi = (email:string, password:string,name:string) => {
+export const registerApi = (username:string,email:string, password:string) => {
     return apiRequest<UserResponse>("/users", {
         method:"POST",
-        body: JSON.stringify({user: {email,password,name}})
+        body: JSON.stringify({user: {username,email,password}})
     })
 }
