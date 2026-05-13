@@ -21,9 +21,9 @@ export const loginApi = (email:string, password:string) => {
     })
 }
 
-export const registerApi = (email:string, password:string,name:string) => {
+export const registerApi = (name:string,email:string, password:string) => {
     return apiRequest<UserResponse>("/users", {
         method:"POST",
-        body: JSON.stringify({user: {email,password,name}})
+        body: JSON.stringify({user: {name,email,password}})
     })
 }
