@@ -1,4 +1,4 @@
-const BASE_URL = "https://api.realworld.show/api/api/";
+const BASE_URL = "/api"
 
 export type ApiError = {
   status: number;
