@@ -1,4 +1,5 @@
 import { HashRouter, Routes, Route } from "react-router-dom";
+import MainLayout from "./layouts/MainLayout";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -11,15 +12,17 @@ function App() {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/editor" element={<EditorPage />} />
-        <Route path="/editor/:slug" element={<EditorPage />} />
-        <Route path="/article/:slug" element={<ArticlePage />} />
-        <Route path="/profile/:username" element={<ProfilePage />} />
-        <Route path="/profile/:username/favorites" element={<ProfilePage />} />
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/editor" element={<EditorPage />} />
+          <Route path="/editor/:slug" element={<EditorPage />} />
+          <Route path="/article/:slug" element={<ArticlePage />} />
+          <Route path="/profile/:username" element={<ProfilePage />} />
+          <Route path="/profile/:username/favorites" element={<ProfilePage />} />
+        </Route>
       </Routes>
     </HashRouter>
   );
