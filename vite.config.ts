@@ -10,7 +10,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://conduit-realworld-example-app.fly.dev",
+        target: "https://node-express-conduit.appspot.com/",
         changeOrigin: true,
       },
     },
