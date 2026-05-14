@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../api/client";
+import type {TagsResponse} from "../types";
 
-type TagsResponse = {
-  tags: string[];
-};
+
 
 function HomePage() {
   const [tags, setTags] = useState<string[]>([]);
