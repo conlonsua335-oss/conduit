@@ -21,6 +21,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(() => Boolean(token));
 
+  console.log("AuthProvider render:", { 
+  token: token, 
+  user: user, 
+  isLoading: isLoading 
+});
+
   useEffect(() => {
     if (!token) return;
        if (user) return
@@ -29,11 +35,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       try {
         const res = await getCurrentUserApi();
+        console.log("fetch xong:", res);
         if (!cancelled) setUser(res.user);
-      } catch {
+      } catch (err){
+        console.log("fetch lỗi:", err);
         localStorage.removeItem("token");
         if (!cancelled) setUser(null);
       } finally {
+        console.log("finally, cancelled:", cancelled);
         if (!cancelled) setIsLoading(false);
       }
     })();
