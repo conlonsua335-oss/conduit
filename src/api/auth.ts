@@ -27,3 +27,15 @@ export const registerApi = (username:string,email:string, password:string) => {
         body: JSON.stringify({user: {username,email,password}})
     })
 }
+
+export function parseApiError(err: unknown): string {
+  const apiErr = err as { data: { errors: Record<string, string | string[]> } };
+  return Object.entries(apiErr.data.errors)
+    .map(([field, errs]) => {
+      if (Array.isArray(errs)) {
+        return `${field} ${errs.join(", ")}`;
+      }
+      return `${field} ${errs}`;
+    })
+    .join(". ");
+}
