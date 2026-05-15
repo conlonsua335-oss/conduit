@@ -24,6 +24,7 @@ function LoginPage() {
 
     try {
       const res = await loginApi(email, password);
+      console.log("Response login:", res)
       login(res.user.token, res.user);
       navigate("/");
     } catch (err: unknown) {

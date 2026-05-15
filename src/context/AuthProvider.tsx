@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { getCurrentUserApi } from "../api/auth";
 import { AuthContext } from "./auth-context";
@@ -43,10 +43,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [token]);
 
-  const login = (token: string, user: User) => {
+  const login = useCallback((token: string, user: User) => {
+    console.log("login() được gọi, token: ",token)
     localStorage.setItem("token", token);
+    console.log("sau setItem:", localStorage.getItem("token"))
     setUser(user);
-  };
+  }, []);
 
   const logout = () => {
     localStorage.removeItem("token");
