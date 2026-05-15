@@ -36,6 +36,13 @@ export type Comment = {
 
 export type Tag = string;
 
+export type TagListProps = {
+  tags: string[];
+  selectedTag: string | null;
+  isLoading: boolean;
+  onTagClick: (tag: string) => void;
+};
+
 export type UserResponse = { user: User };
 export type ProfileResponse = { profile: Profile };
 export type ArticleResponse = { article: Article };

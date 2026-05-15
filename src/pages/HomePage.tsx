@@ -23,30 +23,30 @@ function HomePage() {
   }, []);
 
   // Fetch articles mỗi khi selectedTag thay đổi
-useEffect(() => {
-  let cancelled = false;
+  useEffect(() => {
+    let cancelled = false;
 
-  const fetchArticles = async () => {
-    try {
-      const res = await listArticles(10, 0, selectedTag ?? undefined);
-      if (!cancelled) {
-        setArticles(res.articles);
-        setIsLoadingArticles(false);
+    const fetchArticles = async () => {
+      try {
+        const res = await listArticles(10, 0, selectedTag ?? undefined);
+        if (!cancelled) {
+          setArticles(res.articles);
+          setIsLoadingArticles(false);
+        }
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) setIsLoadingArticles(false);
       }
-    } catch (err) {
-      console.error(err);
-      if (!cancelled) setIsLoadingArticles(false);
-    }
-  };
+    };
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  setIsLoadingArticles(true);
-  fetchArticles();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsLoadingArticles(true);
+    fetchArticles();
 
-  return () => {
-    cancelled = true;
-  };
-}, [selectedTag]);
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedTag]);
 
   const handleTagClick = (tag: string) => {
     setSelectedTag((prev) => (prev === tag ? null : tag));

@@ -1,9 +1,5 @@
-type TagListProps = {
-  tags: string[];
-  selectedTag: string | null;
-  isLoading: boolean;
-  onTagClick: (tag: string) => void;
-};
+import type { TagListProps } from "../types";
+
 
 function TagList({ tags, selectedTag, isLoading, onTagClick }: TagListProps) {
   return (
@@ -24,11 +20,10 @@ function TagList({ tags, selectedTag, isLoading, onTagClick }: TagListProps) {
             <button
               key={tag}
               onClick={() => onTagClick(tag)}
-              className={`text-xs px-2 py-1 rounded-full transition ${
-                selectedTag === tag
-                  ? "bg-gray-600 text-white"
-                  : "bg-gray-400 text-white hover:bg-gray-600"
-              }`}
+              className={`text-xs px-2 py-1 rounded-full transition ${selectedTag === tag
+                ? "bg-gray-600 text-white"
+                : "bg-gray-400 text-white hover:bg-gray-600"
+                }`}
             >
               {tag}
             </button>
