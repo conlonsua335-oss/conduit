@@ -1,14 +1,5 @@
+import type { UserResponse } from "../types"
 import { apiRequest } from "./client"
-
-export type User = {
-  email: string;
-  token: string;
-  username: string;
-  bio: string | null;
-  image: string | null;
-};
-
-export type UserResponse = { user: User };
 
 export const getCurrentUserApi = () => {
     return apiRequest<UserResponse>("/users")

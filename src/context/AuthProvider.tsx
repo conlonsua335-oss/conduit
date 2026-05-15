@@ -2,14 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { getCurrentUserApi } from "../api/auth";
 import { AuthContext } from "./auth-context";
-
-export type User = {
-  email: string;
-  token: string;
-  username: string;
-  bio: string | null;
-  image: string | null;
-};
+import type { User } from "../types";
 
 function readToken(): string | null {
   return localStorage.getItem("token");
@@ -23,7 +16,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!token) return;
-       if (user) return
+    if (user) return
     let cancelled = false;
 
     (async () => {
@@ -43,20 +36,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [token]);
 
-const login = useCallback((token: string, user: User) => {
-  localStorage.setItem("token", token);
-  setUser(user);
-}, []);
+  const login = useCallback((token: string, user: User) => {
+    localStorage.setItem("token", token);
+    setUser(user);
+  }, []);
 
-const logout = useCallback(() => {
-  localStorage.removeItem("token");
-  setUser(null);
-}, []);
+  const logout = useCallback(() => {
+    localStorage.removeItem("token");
+    setUser(null);
+  }, []);
 
-const value = useMemo(
-  () => ({ user, isLoading, login, logout }),
-  [user, isLoading, login, logout]
-);
+  const value = useMemo(
+    () => ({ user, isLoading, login, logout }),
+    [user, isLoading, login, logout]
+  );
 
   return (
     <AuthContext.Provider value={value}>
