@@ -44,10 +44,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [token]);
 
-  const login = (token: string, user: User) => {
+  const login = useCallback((token: string, user: User) => {
     localStorage.setItem("token", token);
     setUser(user);
-  };
+  }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem("token");
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo(
     () => ({ user, isLoading, login, logout }),
-    [user, isLoading,logout]
+    [user, isLoading,login,logout]
   );
 
   return (
