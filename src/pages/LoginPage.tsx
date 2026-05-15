@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { loginApi } from "../api/auth";
+import { loginApi, parseApiError } from "../api/auth";
 import { useAuth } from "../context/useAuth";
 
 function LoginPage() {
@@ -28,16 +28,8 @@ function LoginPage() {
       navigate("/");
     } catch (err: unknown) {
       console.log("Lỗi:", err);
-      const apiErr = err as { data: { errors: Record<string, string | string[]> } };
-      const messages = Object.entries(apiErr.data.errors)
-        .map(([field, errs]) => {
-          if (Array.isArray(errs)) {
-            return `${field} ${errs.join(", ")}`;
-          }
-          return `${field} ${errs}`;
-        })
-        .join(". ");
-      setError(messages);
+
+      setError(parseApiError(err));
     } finally {
       setIsLoading(false);
     }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerApi } from "../api/auth";
+import { parseApiError, registerApi } from "../api/auth";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -25,16 +25,7 @@ function RegisterPage() {
       navigate("/login");
     } catch (err: unknown) {
       console.log("Lỗi:", err);
-      const apiErr = err as { data: { errors: Record<string, string | string[]> } };
-      const messages = Object.entries(apiErr.data.errors)
-        .map(([field, errs]) => {
-          if (Array.isArray(errs)) {
-            return `${field} ${errs.join(", ")}`;
-          }
-          return `${field} ${errs}`;
-        })
-        .join(". ");
-      setError(messages);
+      setError(parseApiError(err));
     } finally {
       setIsLoading(false);
     }

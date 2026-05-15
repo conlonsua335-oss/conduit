@@ -2,14 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { getCurrentUserApi } from "../api/auth";
 import { AuthContext } from "./auth-context";
+import type { User } from "../types";
 
-export type User = {
-  email: string;
-  token: string;
-  username: string;
-  bio: string | null;
-  image: string | null;
-};
 
 function readToken(): string | null {
   return localStorage.getItem("token");
