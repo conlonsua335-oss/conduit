@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../api/client";
-import type {TagsResponse} from "../types";
+import type { TagsResponse } from "../types";
 
 
 

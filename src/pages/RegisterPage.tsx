@@ -14,7 +14,7 @@ function RegisterPage() {
   const handleSubmit = async () => {
     setError("");
 
-    if(!username || !email ||!password){
+    if (!username || !email || !password) {
       setError("Vui lòng nhập đầy đủ thông tin")
       return
     }
@@ -24,18 +24,18 @@ function RegisterPage() {
       await registerApi(username, email, password);
       navigate("/login");
     } catch (err: unknown) {
-  console.log("Lỗi:", err);
-  const apiErr = err as { data: { errors: Record<string, string | string[]> } };
-  const messages = Object.entries(apiErr.data.errors)
-    .map(([field, errs]) => {
-      if (Array.isArray(errs)) {
-        return `${field} ${errs.join(", ")}`;
-      }
-      return `${field} ${errs}`;
-    })
-    .join(". ");
-  setError(messages);
-} finally {
+      console.log("Lỗi:", err);
+      const apiErr = err as { data: { errors: Record<string, string | string[]> } };
+      const messages = Object.entries(apiErr.data.errors)
+        .map(([field, errs]) => {
+          if (Array.isArray(errs)) {
+            return `${field} ${errs.join(", ")}`;
+          }
+          return `${field} ${errs}`;
+        })
+        .join(". ");
+      setError(messages);
+    } finally {
       setIsLoading(false);
     }
   };
