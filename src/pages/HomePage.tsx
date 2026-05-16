@@ -1,28 +1,143 @@
 import { useEffect, useState } from "react";
-import { apiRequest } from "../api/client";
+import { listArticles } from "../api/articles";
+import { getTags } from "../api/tags";
+import ArticleCard from "../components/ArticleCard";
+import TagList from "../components/TagList";
+import Pagination from "../components/Pagination";
+import type { Article } from "../types";
 
-type TagsResponse = {
-  tags: string[];
-};
+const PAGE_SIZE = 10;
 
 function HomePage() {
-  const [tags, setTags] = useState<string[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [articlesCount, setArticlesCount] = useState(0);
+  const [isLoadingArticles, setIsLoadingArticles] = useState(true);
 
+  const [tags, setTags] = useState<string[]>([]);
+  const [isLoadingTags, setIsLoadingTags] = useState(true);
+
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(articlesCount / PAGE_SIZE);
+
+  // Fetch tags 1 lần khi load
   useEffect(() => {
-    apiRequest<TagsResponse>("/tags")
+    getTags()
       .then((res) => setTags(res.tags))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err))
+      .finally(() => setIsLoadingTags(false));
   }, []);
 
+  // Fetch articles khi selectedTag hoặc currentPage thay đổi
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchArticles = async () => {
+      try {
+        const offset = (currentPage - 1) * PAGE_SIZE;
+        const res = await listArticles(PAGE_SIZE, offset, selectedTag ?? undefined);
+        if (!cancelled) {
+          setArticles(res.articles);
+          setArticlesCount(res.articlesCount);
+          setIsLoadingArticles(false);
+        }
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) setIsLoadingArticles(false);
+      }
+    };
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setArticles([]);
+    setIsLoadingArticles(true);
+    fetchArticles();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedTag, currentPage]);
+
+  const handleTagClick = (tag: string) => {
+    setSelectedTag((prev) => (prev === tag ? null : tag));
+    setCurrentPage(1); // reset về trang 1 khi đổi tag
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0); // scroll lên đầu khi đổi trang
+  };
+
   return (
-    <div className="p-4">
-      <h1>Home Page</h1>
-      <p>Tags từ API:</p>
-      <ul>
-        {tags.map((tag) => (
-          <li key={tag}>{tag}</li>
-        ))}
-      </ul>
+    <div className="max-w-5xl mx-auto px-4 py-6">
+      {/* Banner */}
+      <div className="bg-green-500 text-white text-center py-10 mb-8 rounded">
+        <h1 className="text-4xl font-bold mb-2">conduit</h1>
+        <p className="text-xl">A place to share your knowledge.</p>
+      </div>
+
+      {/* Content */}
+      <div className="flex gap-6">
+        {/* Article List */}
+        <div className="flex-1">
+          <div className="border-b border-gray-200 mb-4">
+            {selectedTag ? (
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setSelectedTag(null);
+                    setCurrentPage(1);
+                  }}
+                  className="pb-2 px-4 text-gray-500 hover:text-gray-900"
+                >
+                  Global Feed
+                </button>
+                <span className="inline-block border-b-2 border-green-500 text-green-500 pb-2 px-4">
+                  # {selectedTag}
+                </span>
+              </div>
+            ) : (
+              <span className="inline-block border-b-2 border-green-500 text-green-500 pb-2 px-4">
+                Global Feed
+              </span>
+            )}
+          </div>
+
+          {isLoadingArticles && (
+            <p className="text-gray-400 text-center py-10">
+              Loading articles...
+            </p>
+          )}
+
+          {!isLoadingArticles && articles.length === 0 && (
+            <p className="text-gray-400 text-center py-10">
+              No articles are here... yet.
+            </p>
+          )}
+
+          {!isLoadingArticles &&
+            articles.map((article) => (
+              <ArticleCard key={article.slug} article={article} />
+            ))}
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+
+        {/* Sidebar */}
+        <div className="w-56 shrink-0">
+          <TagList
+            tags={tags}
+            selectedTag={selectedTag}
+            isLoading={isLoadingTags}
+            onTagClick={handleTagClick}
+          />
+        </div>
+      </div>
     </div>
   );
 }
