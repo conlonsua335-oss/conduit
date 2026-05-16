@@ -43,6 +43,12 @@ export type TagListProps = {
   onTagClick: (tag: string) => void;
 };
 
+export type PaginationProps = {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+};
+
 export type UserResponse = { user: User };
 export type ProfileResponse = { profile: Profile };
 export type ArticleResponse = { article: Article };

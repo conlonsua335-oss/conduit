@@ -3,16 +3,23 @@ import { listArticles } from "../api/articles";
 import { getTags } from "../api/tags";
 import ArticleCard from "../components/ArticleCard";
 import TagList from "../components/TagList";
+import Pagination from "../components/Pagination";
 import type { Article } from "../types";
+
+const PAGE_SIZE = 10;
 
 function HomePage() {
   const [articles, setArticles] = useState<Article[]>([]);
+  const [articlesCount, setArticlesCount] = useState(0);
   const [isLoadingArticles, setIsLoadingArticles] = useState(true);
 
   const [tags, setTags] = useState<string[]>([]);
   const [isLoadingTags, setIsLoadingTags] = useState(true);
 
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(articlesCount / PAGE_SIZE);
 
   // Fetch tags 1 lần khi load
   useEffect(() => {
@@ -22,15 +29,17 @@ function HomePage() {
       .finally(() => setIsLoadingTags(false));
   }, []);
 
-  // Fetch articles mỗi khi selectedTag thay đổi
+  // Fetch articles khi selectedTag hoặc currentPage thay đổi
   useEffect(() => {
     let cancelled = false;
 
     const fetchArticles = async () => {
       try {
-        const res = await listArticles(10, 0, selectedTag ?? undefined);
+        const offset = (currentPage - 1) * PAGE_SIZE;
+        const res = await listArticles(PAGE_SIZE, offset, selectedTag ?? undefined);
         if (!cancelled) {
           setArticles(res.articles);
+          setArticlesCount(res.articlesCount);
           setIsLoadingArticles(false);
         }
       } catch (err) {
@@ -38,19 +47,25 @@ function HomePage() {
         if (!cancelled) setIsLoadingArticles(false);
       }
     };
+
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setArticles([]);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoadingArticles(true);
     fetchArticles();
 
     return () => {
       cancelled = true;
     };
-  }, [selectedTag]);
+  }, [selectedTag, currentPage]);
 
   const handleTagClick = (tag: string) => {
     setSelectedTag((prev) => (prev === tag ? null : tag));
+    setCurrentPage(1); // reset về trang 1 khi đổi tag
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0); // scroll lên đầu khi đổi trang
   };
 
   return (
@@ -69,7 +84,10 @@ function HomePage() {
             {selectedTag ? (
               <div className="flex gap-4">
                 <button
-                  onClick={() => setSelectedTag(null)}
+                  onClick={() => {
+                    setSelectedTag(null);
+                    setCurrentPage(1);
+                  }}
                   className="pb-2 px-4 text-gray-500 hover:text-gray-900"
                 >
                   Global Feed
@@ -101,10 +119,17 @@ function HomePage() {
             articles.map((article) => (
               <ArticleCard key={article.slug} article={article} />
             ))}
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
 
         {/* Sidebar */}
-        <div className="w-56 flex-shrink-0">
+        <div className="w-56 shrink-0">
           <TagList
             tags={tags}
             selectedTag={selectedTag}
