@@ -38,7 +38,8 @@ function HomePage() {
         if (!cancelled) setIsLoadingArticles(false);
       }
     };
-
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setArticles([]);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoadingArticles(true);
     fetchArticles();
