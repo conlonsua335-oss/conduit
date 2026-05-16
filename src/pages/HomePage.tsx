@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
-import { listArticles } from "../api/articles";
+import { listArticles, feedArticles } from "../api/articles";
 import { getTags } from "../api/tags";
+import { useAuth } from "../context/useAuth";
 import ArticleCard from "../components/ArticleCard";
 import TagList from "../components/TagList";
 import Pagination from "../components/Pagination";
 import type { Article } from "../types";
 
 const PAGE_SIZE = 10;
+type FeedType = "global" | "your";
 
 function HomePage() {
+  const { user } = useAuth();
+
   const [articles, setArticles] = useState<Article[]>([]);
   const [articlesCount, setArticlesCount] = useState(0);
   const [isLoadingArticles, setIsLoadingArticles] = useState(true);
@@ -18,6 +22,7 @@ function HomePage() {
 
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [feedType, setFeedType] = useState<FeedType>("global");
 
   const totalPages = Math.ceil(articlesCount / PAGE_SIZE);
 
@@ -29,14 +34,17 @@ function HomePage() {
       .finally(() => setIsLoadingTags(false));
   }, []);
 
-  // Fetch articles khi selectedTag hoặc currentPage thay đổi
+  // Fetch articles khi feedType, selectedTag, currentPage thay đổi
   useEffect(() => {
     let cancelled = false;
 
     const fetchArticles = async () => {
       try {
         const offset = (currentPage - 1) * PAGE_SIZE;
-        const res = await listArticles(PAGE_SIZE, offset, selectedTag ?? undefined);
+        const res = feedType === "your"
+          ? await feedArticles(PAGE_SIZE, offset)
+          : await listArticles(PAGE_SIZE, offset, selectedTag ?? undefined);
+
         if (!cancelled) {
           setArticles(res.articles);
           setArticlesCount(res.articlesCount);
@@ -53,19 +61,24 @@ function HomePage() {
     setIsLoadingArticles(true);
     fetchArticles();
 
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedTag, currentPage]);
+    return () => { cancelled = true; };
+  }, [feedType, selectedTag, currentPage]);
 
   const handleTagClick = (tag: string) => {
     setSelectedTag((prev) => (prev === tag ? null : tag));
-    setCurrentPage(1); // reset về trang 1 khi đổi tag
+    setFeedType("global");
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo(0, 0); // scroll lên đầu khi đổi trang
+    window.scrollTo(0, 0);
+  };
+
+  const handleFeedChange = (type: FeedType) => {
+    setFeedType(type);
+    setSelectedTag(null);
+    setCurrentPage(1);
   };
 
   return (
@@ -76,29 +89,34 @@ function HomePage() {
         <p className="text-xl">A place to share your knowledge.</p>
       </div>
 
-      {/* Content */}
       <div className="flex gap-6">
         {/* Article List */}
         <div className="flex-1">
-          <div className="border-b border-gray-200 mb-4">
-            {selectedTag ? (
-              <div className="flex gap-4">
-                <button
-                  onClick={() => {
-                    setSelectedTag(null);
-                    setCurrentPage(1);
-                  }}
-                  className="pb-2 px-4 text-gray-500 hover:text-gray-900"
-                >
-                  Global Feed
-                </button>
-                <span className="inline-block border-b-2 border-green-500 text-green-500 pb-2 px-4">
-                  # {selectedTag}
-                </span>
-              </div>
-            ) : (
-              <span className="inline-block border-b-2 border-green-500 text-green-500 pb-2 px-4">
-                Global Feed
+          {/* Tabs */}
+          <div className="flex border-b border-gray-200 mb-4">
+            {user && (
+              <button
+                onClick={() => handleFeedChange("your")}
+                className={`pb-2 px-4 text-sm ${feedType === "your" && !selectedTag
+                  ? "border-b-2 border-green-500 text-green-500"
+                  : "text-gray-500 hover:text-gray-900"
+                  }`}
+              >
+                Your Feed
+              </button>
+            )}
+            <button
+              onClick={() => handleFeedChange("global")}
+              className={`pb-2 px-4 text-sm ${feedType === "global" && !selectedTag
+                ? "border-b-2 border-green-500 text-green-500"
+                : "text-gray-500 hover:text-gray-900"
+                }`}
+            >
+              Global Feed
+            </button>
+            {selectedTag && (
+              <span className="border-b-2 border-green-500 text-green-500 pb-2 px-4 text-sm">
+                # {selectedTag}
               </span>
             )}
           </div>
@@ -120,7 +138,6 @@ function HomePage() {
               <ArticleCard key={article.slug} article={article} />
             ))}
 
-          {/* Pagination */}
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -129,7 +146,7 @@ function HomePage() {
         </div>
 
         {/* Sidebar */}
-        <div className="w-56 shrink-0">
+        <div className="w-56 flex-shrink-0">
           <TagList
             tags={tags}
             selectedTag={selectedTag}
